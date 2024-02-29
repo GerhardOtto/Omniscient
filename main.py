@@ -12,7 +12,7 @@ def read_exam_schedule(file_path):
     return df[[module_code_col, opportunity_col, date_col, start_time_col, finish_time_col]]
 
 
-def create_calendar_event(module_code, date, start_time, finish_time, duration):
+def create_calendar_event(module_code, date, start_time, finish_time):
     event = Event()
     event.add('summary', f'Exam: {module_code}')
     event.add('dtstart', pd.to_datetime(f'{date} {start_time}'))
@@ -21,13 +21,13 @@ def create_calendar_event(module_code, date, start_time, finish_time, duration):
 
 
 def main():
-    file_path = '/Users/gerhard/Downloads/2024.Exam_.Sem2Opp1.All_.13Feb.xlsx'
-    modules_to_track = ['GERM 221']
+    file_path = input("Enter the path to the Excel file: ")
+    modules_to_track = input("Enter module codes (comma-separated): ").split(',')
 
     exam_schedule = read_exam_schedule(file_path)
     processed_modules = set()
 
-    cal = Calendar()  
+    cal = Calendar()
 
     for module_code in modules_to_track:
         if module_code not in exam_schedule['Module'].unique() and module_code not in processed_modules:
@@ -57,14 +57,15 @@ def main():
             print(f"Adding event for module '{module_code}':")
             print(f"Date: {date}, Start Time: {start_time}, Finish Time: {finish_time}, Duration: {duration}")
 
-            event = create_calendar_event(module_code, date, start_time, finish_time, duration)
+            event = create_calendar_event(module_code, date, start_time, finish_time)
             cal.add_component(event)
 
-    # Write all calendar events to a single .ics file
-    with open('exam_schedule.ics', 'wb') as f:
+    # Write all calendar events to a single .ics file in the directory of the Python file
+    output_file_path = 'exam_schedule.ics'
+    with open(output_file_path, 'wb') as f:
         f.write(cal.to_ical())
 
-    print('Calendar events for all modules added to exam_schedule.ics')
+    print(f'Calendar events for all modules added to {output_file_path}')
 
 
 if __name__ == "__main__":
